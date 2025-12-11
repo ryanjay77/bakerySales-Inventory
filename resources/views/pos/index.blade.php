@@ -19,12 +19,7 @@
                 @php
                     $isOutOfStock = $product->stock <= 0;
                 @endphp
-                <!-- 
-                   LOGIC UPDATE: 
-                   1. We added an ID to the card to manipulate it if needed.
-                   2. The onclick only fires if stock is > 0 initially.
-                   3. Styling changes if stock is 0 (grayed out).
-                -->
+                
                 <div id="product-card-{{ $product->id }}"
                      onclick="{{ $isOutOfStock ? '' : 'addToCart('.$product->id.', \''.$product->name.'\', '.$product->price.', '.$product->stock.')' }}" 
                      class="bg-white p-4 rounded-xl shadow-sm transition group relative border border-transparent
@@ -38,13 +33,16 @@
                     <p class="text-xs text-gray-500 mb-2">{{ $product->category }}</p>
                     
                     <div class="flex justify-between items-center mt-2">
-                        <span class="text-amber-600 font-bold">₱{{ number_format($product->price, 2) }}</span>
+                        <!-- SWAPPED POSITIONS -->
                         
-                        <!-- ADDED ID: stock-badge-ID so we can update the number with JS -->
+                        <!-- 1. Stock Badge (Now on LEFT) -->
                         <span id="stock-badge-{{ $product->id }}" 
                               class="text-xs px-2 py-1 rounded-full {{ $isOutOfStock ? 'bg-gray-200 text-gray-500' : ($product->stock < 5 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600') }}">
                             {{ $product->stock }} left
                         </span>
+
+                        <!-- 2. Price (Now on RIGHT) -->
+                        <span class="text-amber-600 font-bold">₱{{ number_format($product->price, 2) }}</span>
                     </div>
                 </div>
                 @endforeach
@@ -89,12 +87,10 @@
             let item = cart.find(i => i.id === id);
             let currentQty = item ? item.quantity : 0;
 
-            // 1. Check if we have enough stock BEFORE adding
             if (currentQty >= stock) {
                 return alert('No more stock available!');
             }
 
-            // 2. Add to cart
             if (item) {
                 item.quantity++;
             } else {
@@ -102,11 +98,9 @@
             }
 
             renderCart();
-            // 3. Update the Grid UI immediately
             updateGridStock(id, stock);
         }
 
-        // Helper to update the "X left" badge on the product card
         function updateGridStock(id, initialStock) {
             let item = cart.find(i => i.id === id);
             let qtyInCart = item ? item.quantity : 0;
@@ -116,7 +110,6 @@
             if (badge) {
                 badge.innerText = remaining + " left";
                 
-                // Change color based on remaining stock
                 if (remaining <= 0) {
                     badge.className = "text-xs px-2 py-1 rounded-full bg-gray-200 text-gray-500 font-bold";
                 } else if (remaining < 5) {
@@ -163,7 +156,6 @@
         function removeFromCart(index, id, stock) {
             cart.splice(index, 1);
             renderCart();
-            // When removing from cart, put the stock back on the grid display
             updateGridStock(id, stock);
         }
 
