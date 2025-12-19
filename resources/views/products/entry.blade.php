@@ -56,7 +56,6 @@
                         <option value="Cake">Cake</option>
                         <option value="Ice Cream">Ice Cream</option>
                         <option value="Beverage">Beverage</option>
-                        <option value="Concessionaire">Concessionaire</option>
                     </select>
                 </div>
 
