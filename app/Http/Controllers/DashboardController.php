@@ -10,11 +10,24 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Existing Stats
-        $totalRevenue = Transaction::sum('total_amount');
+        // 1. DATE FILTERING LOGIC
+        // Default to 'This Month' if no filter is provided
+        $startDate = $request->input('start_date', Carbon::now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', Carbon::now()->endOfMonth()->toDateString());
+
+        // 2. Statistics based on Filter
+        $totalSales = Transaction::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->sum('total_amount');
+
+        $totalTransactions = Transaction::whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
+            ->count();
+
+        // Total Products (Static - Current State)
         $totalProducts = Product::count();
+        
+        // Low Stock (Static - Current State)
         $lowStockCount = Product::where('stock', '<', 10)->count();
         
         $recentTransactions = Transaction::with('cashier')
@@ -24,30 +37,30 @@ class DashboardController extends Controller
 
         $todaySales = Transaction::whereDate('created_at', Carbon::today())->sum('total_amount');
 
-        // 2. NEW: Chart Data (Last 7 Days Sales)
+        // 3. Chart Data (Respects the Filter)
         $salesData = Transaction::select(
             DB::raw('DATE(created_at) as date'),
             DB::raw('SUM(total_amount) as total')
         )
-        ->where('created_at', '>=', Carbon::now()->subDays(7)) // Get last 7 days
+        ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59'])
         ->groupBy('date')
         ->orderBy('date', 'ASC')
         ->get();
 
-        // Format data for Chart.js
-        $chartLabels = $salesData->pluck('date')->map(function($date) {
-            return Carbon::parse($date)->format('M d'); // e.g. "Dec 01"
-        });
+        $chartLabels = $salesData->pluck('date')->map(fn($d) => Carbon::parse($d)->format('M d'));
         $chartValues = $salesData->pluck('total');
 
         return view('dashboard', compact(
-            'totalRevenue', 
+            'totalSales', 
             'totalProducts', 
             'lowStockCount', 
             'recentTransactions',
             'todaySales',
-            'chartLabels', // Passing these to the view
-            'chartValues'
+            'chartLabels', 
+            'chartValues',
+            'startDate',
+            'endDate',
+            'totalTransactions'
         ));
     }
 }

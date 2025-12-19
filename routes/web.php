@@ -6,8 +6,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\StockInController;   // <--- THIS WAS MISSING
-use App\Http\Controllers\StockOutController;  // <--- ADD THIS TOO
+use App\Http\Controllers\StockInController;   
+use App\Http\Controllers\StockOutController;  
 use App\Http\Middleware\AdminMiddleware;
 
 /*
@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
         
         // 1. Product Entry
         Route::resource('products', ProductController::class);
+        
+        // NEW: Low Stock Route
+        Route::get('/low-stock', [ProductController::class, 'lowStock'])->name('products.low-stock');
         
         // 2. Stock In
         Route::get('/stock-in', [StockInController::class, 'index'])->name('stock-in.index');

@@ -109,6 +109,12 @@
                         <span class="text-base">Product Entry</span>
                     </a>
 
+                    <!-- ADDED LOW STOCK ALERTS LINK -->
+                    <a href="{{ route('products.low-stock') }}" class="flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 group {{ request()->routeIs('products.low-stock') ? 'bg-red-50 text-red-700 font-bold border border-red-100 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <span class="text-xl group-hover:scale-110 transition-transform">⚠️</span> 
+                        <span class="text-base">Low Stock Alerts</span>
+                    </a>
+
                     <a href="{{ route('stock-in.index') }}" class="flex items-center gap-4 px-5 py-4 rounded-xl transition-all duration-200 group {{ request()->routeIs('stock-in.index') ? 'bg-amber-50 text-amber-700 font-bold border border-amber-100 shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                         <span class="text-xl group-hover:scale-110 transition-transform">📥</span> 
                         <span class="text-base">Stock In</span>
